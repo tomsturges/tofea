@@ -8,7 +8,7 @@ from autograd import value_and_grad
 from tofea.fea2d import FEA2D_T
 from tofea.topopt_helpers import simp_parametrization
 
-max_its = 100
+max_its = 20
 volfrac = 0.4
 sigma = 0.5
 shape = (100, 100)
@@ -63,8 +63,9 @@ def nlopt_obj(x, gd):
 
     im0.set_data(parametrization(x).T)
     im1.set_data(u.T)
-    im1.set_clim([u.min(), u.max()])
-    plt.pause(0.01)
+    im1.set_clim([0, 21512])
+    # print(f"min is {u.min()}\t max is {u.max()}")
+    plt.pause(0.1)
 
     return c
 

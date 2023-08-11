@@ -58,6 +58,16 @@ class FEA2D:
 
         return anp.sum(c)
 
+    def heat_distribution(self, x: NDArray, b: NDArray) -> NDArray:
+        data, indices = self.global_mat(x)
+        u_nz = solve_coo(data, indices, b.ravel()[self.freedofs], self.solver)
+        u = anp.concatenate([u_nz, np.zeros(len(self.fixdofs))])[self.index_map]
+
+        dofmap = np.reshape(self.e2sdofmap.T, (-1, *self.out_shape))
+        c = anp.einsum("ixy,ij,jxy->xy", u[dofmap], self.element, u[dofmap])
+
+        return u
+
 
 class FEA2D_K(FEA2D):
     dof_dim: int = 2

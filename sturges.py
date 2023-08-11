@@ -24,6 +24,7 @@ load[:, :-10] = 1
 fem = FEA2D_T(fixed)
 parametrization = simp_parametrization(shape, sigma, cmin, cmax)
 x0 = np.full(shape, volfrac)
+u = np.full(shape, 0.5)
 
 
 def objective(x):
@@ -39,8 +40,9 @@ def volume(x):
 
 
 plt.ion()
-fig, ax = plt.subplots(1, 1)
-im = ax.imshow(parametrization(x0).T, cmap="gray_r", vmin=cmin, vmax=cmax)
+fig, ax = plt.subplots(1, 2)
+im0 = ax[0].imshow(parametrization(x0).T, cmap="gray_r", vmin=cmin, vmax=cmax)
+im1 = ax[1].imshow(parametrization(x0).T)
 fig.tight_layout()
 
 
@@ -53,11 +55,15 @@ def volume_constraint(x, gd):
 
 def nlopt_obj(x, gd):
     c, dc = value_and_grad(objective)(x)
+    u = fem.heat_distribution(x, load)
+    u = u.reshape(fixed.shape)
 
     if gd.size > 0:
         gd[:] = dc.ravel()
 
-    im.set_data(parametrization(x).T)
+    im0.set_data(parametrization(x).T)
+    im1.set_data(u.T)
+    im1.set_clim([u.min(), u.max()])
     plt.pause(0.01)
 
     return c

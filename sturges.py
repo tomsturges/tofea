@@ -24,7 +24,8 @@ load[:, :-10] = 1
 fem = FEA2D_T(fixed)
 parametrization = simp_parametrization(shape, sigma, cmin, cmax)
 x0 = np.full(shape, volfrac)
-u = np.full(shape, 0.5)
+u = fem.heat_distribution(x0, load)
+umax = u.max()
 
 
 def objective(x):
@@ -63,8 +64,7 @@ def nlopt_obj(x, gd):
 
     im0.set_data(parametrization(x).T)
     im1.set_data(u.T)
-    im1.set_clim([0, 21512])
-    # print(f"min is {u.min()}\t max is {u.max()}")
+    im1.set_clim([0, umax])
     plt.pause(0.1)
 
     return c
